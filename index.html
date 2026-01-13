@@ -1,268 +1,108 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Krlshnaarth App</title>
+    <title>EarnKP - Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; }
-        .container { width: 100%; max-width: 500px; }
-        .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 20px; box-sizing: border-box; }
-        h1, h2, h3 { color: #4f46e5; margin-top: 0; }
-        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
-        button { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.3s; margin-top: 5px; }
-        .btn-primary { background: #4f46e5; color: white; }
-        .btn-secondary { background: #6366f1; color: white; }
-        .btn-danger { background: #ef4444; color: white; width: auto; padding: 5px 10px; font-size: 12px; }
-        .btn-approve { background: #22c55e; color: white; width: auto; padding: 5px 10px; font-size: 12px; }
-        .btn-logout { background: #374151; color: white; width: auto; padding: 8px 15px; }
-        
-        .folder-item { background: #f9fafb; padding: 15px; border-radius: 10px; border-left: 5px solid #4f46e5; margin-bottom: 10px; position: relative; }
-        .content-item { background: white; padding: 8px; margin-top: 5px; border-radius: 5px; font-size: 14px; border: 1px solid #eee; }
-        .user-row { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; }
-        .badge { padding: 3px 8px; border-radius: 5px; font-size: 12px; }
-        .badge-pending { background: #fef3c7; color: #92400e; }
-        .badge-approved { background: #dcfce7; color: #166534; }
+        body { font-family: 'Inter', sans-serif; background-color: #000; color: #fff; }
+        .glass-card { background: #0f0f0f; border: 1px solid #222; border-radius: 24px; }
+        .btn-premium { background: linear-gradient(135deg, #22c55e, #16a34a); color: white; border-radius: 14px; font-weight: 700; transition: 0.2s; }
+        input { background: #111 !important; border: 1px solid #333 !important; color: #fff !important; border-radius: 14px !important; padding: 14px !important; width: 100%; margin-bottom: 12px; outline: none; }
         .hidden { display: none; }
     </style>
 </head>
-<body>
+<body class="flex items-center justify-center min-h-screen p-6">
 
-    <div class="container">
-        <!-- 1. Login/Register Screen -->
-        <div id="authBox">
-            <h1 style="text-align:center">📁 Krlshnaarth</h1>
-            <div class="card">
-                <h2>Login / Register</h2>
-                <input type="email" id="email" placeholder="Email">
-                <input type="password" id="pass" placeholder="Password">
-                <button class="btn-primary" onclick="handleAuth('login')">Login</button>
-                <button class="btn-secondary" onclick="handleAuth('register')">Register</button>
-                <p style="font-size: 12px; color: #666; text-align: center;">Note: admin acc.ount will automatically become Admin.</p>
-            </div>
-        </div>
-
-        <!-- 2. Dashboard Screen -->
-        <div id="dashBox" class="hidden">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px">
-                <div>
-                    <strong id="displayEmail"></strong><br>
-                    <span id="displayRole" class="badge"></span>
-                </div>
-                <button class="btn-logout" onclick="logout()">Logout</button>
-            </div>
-
-            <!-- Admin Section -->
-            <div id="adminSection" class="hidden">
-                <div class="card">
-                    <h3>Approve Users</h3>
-                    <div id="userList"></div>
-                </div>
-
-                <div class="card">
-                    <h3>Manage Folders</h3>
-                    <div style="display:flex; gap:5px">
-                        <input type="text" id="folderName" placeholder="Folder Name" style="margin:0">
-                        <button class="btn-primary" style="width:auto; margin:0" onclick="createFolder()">Add</button>
-                    </div>
-                    <div id="adminFolders" style="margin-top:15px"></div>
-                </div>
-
-                <div class="card">
-                    <h3>Admin Settings</h3>
-                    <button class="btn-secondary" onclick="changeAdminCreds()">Update Email/Password</button>
-                </div>
-            </div>
-
-            <!-- User Section -->
-            <div id="userSection" class="hidden">
-                <div class="card">
-                    <h3>My Folders</h3>
-                    <div id="userFolders"></div>
-                    <div id="pendingMsg" class="hidden" style="text-align:center; color: #92400e;">
-                        Aapka account approval ke liye pending hai. Admin ka intezar karein.
-                    </div>
-                </div>
-            </div>
-        </div>
+    <!-- LOGIN FORM -->
+    <div id="auth-login" class="w-full max-w-sm glass-card p-8">
+        <h1 class="text-3xl font-black text-green-500 text-center mb-8">EARNKP</h1>
+        <input type="text" id="login-uid" placeholder="User ID (KP00001)">
+        <input type="password" id="login-pass" placeholder="Password">
+        <button onclick="login()" class="btn-premium w-full py-4 mt-4">LOG IN</button>
+        <p class="text-center mt-6 text-zinc-500 text-sm">New? <button onclick="toggleAuth()" class="text-green-500 font-bold">Register</button></p>
     </div>
 
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateEmail, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs, updateDoc, deleteDoc, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    <!-- REGISTER FORM -->
+    <div id="auth-register" class="w-full max-w-sm glass-card p-8 hidden">
+        <h2 class="text-2xl font-bold mb-6 text-center">Create Account</h2>
+        <input type="text" id="reg-name" placeholder="Full Name">
+        <input type="email" id="reg-email" placeholder="Email">
+        <input type="tel" id="reg-phone" placeholder="Phone Number">
+        <input type="password" id="reg-pass" placeholder="Password">
+        <input type="text" id="reg-ref" placeholder="Referral ID (Optional)">
+        <button onclick="register()" class="btn-premium w-full py-4 mt-4">REGISTER</button>
+        <button onclick="toggleAuth()" class="w-full mt-4 text-zinc-500 text-sm">Back to Login</button>
+    </div>
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyD8fNuIYDLnDidazUu6ijw5rf4GgYxFuRc",
-        authDomain: "krishna-35e4b.firebaseapp.com",
-        projectId: "krishna-35e4b",
-        storageBucket: "krishna-35e4b.firebasestorage.app",
-        messagingSenderId: "143564034150",
-        appId: "1:143564034150:web:56860b341a63ee82fd5da7",
-        measurementId: "G-0SLWD1D1FP"
-    };
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+        const firebaseConfig = {
+            apiKey: "AIzaSyBM2yLCY-Rz10hPjYLZ-UDw9RGTiveLWEE",
+            authDomain: "earnkp-ffebc.firebaseapp.com",
+            projectId: "earnkp-ffebc",
+            storageBucket: "earnkp-ffebc.firebasestorage.app",
+            messagingSenderId: "724007533070",
+            appId: "1:724007533070:web:12e98f84828a8624429a5f"
+        };
 
-    // --- AUTHENTICATION ---
-    window.handleAuth = async (mode) => {
-        const email = document.getElementById("email").value.trim();
-        const pass = document.getElementById("pass").value;
-        if(!email || !pass) return alert("Email aur Password bhariye");
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-        try {
-            if(mode === 'register') {
-                const res = await createUserWithEmailAndPassword(auth, email, pass);
-                // AUTO-ADMIN LOGIC
-                let role = "user";
-                let approved = false;
-                if(email === "admin@krlshnaarth.com") {
-                    role = "admin";
-                    approved = true;
-                }
-                await setDoc(doc(db, "users", res.user.uid), { email, role, approved });
-                alert("Account ban gaya!");
-            } else {
-                await signInWithEmailAndPassword(auth, email, pass);
-            }
-        } catch(e) { alert("Error: " + e.message); }
-    };
-
-    window.logout = () => signOut(auth);
-
-    // --- ADMIN ACTIONS ---
-    async function loadUsers() {
-        const snap = await getDocs(collection(db, "users"));
-        const list = document.getElementById("userList");
-        list.innerHTML = "";
-        snap.forEach(uDoc => {
-            const u = uDoc.data();
-            if(u.role !== 'admin') {
-                list.innerHTML += `
-                <div class="user-row">
-                    <span>${u.email} <br> <small class="badge ${u.approved?'badge-approved':'badge-pending'}">${u.approved?'Approved':'Pending'}</small></span>
-                    <button class="btn-approve" onclick="approveUser('${uDoc.id}', ${u.approved})">${u.approved?'Disapprove':'Approve'}</button>
-                </div>`;
-            }
+        // Check if already logged in
+        onAuthStateChanged(auth, (user) => {
+            if (user) window.location.href = 'dashboard.html';
         });
-    }
 
-    window.approveUser = async (uid, current) => {
-        await updateDoc(doc(db, "users", uid), { approved: !current });
-        loadUsers();
-    };
+        window.toggleAuth = () => {
+            document.getElementById('auth-login').classList.toggle('hidden');
+            document.getElementById('auth-register').classList.toggle('hidden');
+        };
 
-    window.createFolder = async () => {
-        const name = document.getElementById("folderName").value;
-        if(!name) return;
-        await addDoc(collection(db, "folders"), { name });
-        document.getElementById("folderName").value = "";
-    };
+        window.register = async () => {
+            const name = document.getElementById('reg-name').value;
+            const email = document.getElementById('reg-email').value;
+            const pass = document.getElementById('reg-pass').value;
+            const ref = document.getElementById('reg-ref').value.toUpperCase();
+            if(!name || !email || !pass) return alert("Fill all fields");
 
-    window.deleteFolder = async (id) => {
-        if(confirm("Folder delete karein?")) await deleteDoc(doc(db, "folders", id));
-    };
+            try {
+                const cRef = doc(db, "settings", "counters");
+                const resID = await runTransaction(db, async (t) => {
+                    const s = await t.get(cRef);
+                    const count = (s.exists() ? s.data().userCount : 0) + 1;
+                    const id = `KP${String(count).padStart(5, '0')}`;
+                    t.set(cRef, { userCount: count });
+                    return id;
+                });
 
-    window.addContent = async (folderId) => {
-        const text = prompt("Naya content likhein:");
-        if(text) await addDoc(collection(db, "content"), { folderId, text });
-    };
+                const uc = await createUserWithEmailAndPassword(auth, email, pass);
+                await setDoc(doc(db, "users", uc.user.uid), {
+                    uid: uc.user.uid, name, email, userId: resID, referralId: ref,
+                    topupBalance: 0, incomeBalance: 0, package: 0, role: 'user', bankLocked: false,
+                    packageIncome: 0, level1Income: 0, level2Income: 0, level3Income: 0
+                });
+                await setDoc(doc(db, "idMapping", resID), { email });
+                alert("Registered! ID: " + resID);
+            } catch (e) { alert(e.message); }
+        };
 
-    // --- REALTIME DATA ---
-    function listenToData(isAdmin) {
-        onSnapshot(collection(db, "folders"), (snap) => {
-            const adminDiv = document.getElementById("adminFolders");
-            const userDiv = document.getElementById("userFolders");
-            adminDiv.innerHTML = ""; userDiv.innerHTML = "";
-
-            snap.forEach(fDoc => {
-                const f = fDoc.data();
-                const folderId = fDoc.id;
-
-                // Admin UI
-                adminDiv.innerHTML += `
-                <div class="folder-item">
-                    <strong>📁 ${f.name}</strong>
-                    <div style="margin-top:10px">
-                        <button class="btn-approve" onclick="addContent('${folderId}')">+ Content</button>
-                        <button class="btn-danger" onclick="deleteFolder('${folderId}')">Delete</button>
-                    </div>
-                </div>`;
-
-                // User UI
-                userDiv.innerHTML += `
-                <div class="folder-item">
-                    <strong>📁 ${f.name}</strong>
-                    <div id="cont-${folderId}"></div>
-                </div>`;
-                loadFolderContent(folderId);
-            });
-        });
-    }
-
-    async function loadFolderContent(folderId) {
-        const q = query(collection(db, "content"), where("folderId", "==", folderId));
-        const snap = await getDocs(q);
-        const div = document.getElementById(`cont-${folderId}`);
-        if(div) {
-            div.innerHTML = "";
-            snap.forEach(cDoc => {
-                div.innerHTML += `<div class="content-item">${cDoc.data().text}</div>`;
-            });
-        }
-    }
-
-    window.changeAdminCreds = async () => {
-        const newEmail = prompt("Naya Email (Chhorne ke liye cancel karein):");
-        const newPass = prompt("Naya Password (Chhorne ke liye cancel karein):");
-        const oldPass = prompt("Current Password confirm karein:");
-        try {
-            const cred = EmailAuthProvider.credential(auth.currentUser.email, oldPass);
-            await reauthenticateWithCredential(auth.currentUser, cred);
-            if(newEmail) await updateEmail(auth.currentUser, newEmail);
-            if(newPass) await updatePassword(auth.currentUser, newPass);
-            alert("Success!");
-        } catch(e) { alert(e.message); }
-    };
-
-    // --- AUTH STATE ---
-    onAuthStateChanged(auth, async (user) => {
-        const authBox = document.getElementById("authBox");
-        const dashBox = document.getElementById("dashBox");
-        
-        if (user) {
-            const uSnap = await getDoc(doc(db, "users", user.uid));
-            const uData = uSnap.data();
-            
-            authBox.classList.add("hidden");
-            dashBox.classList.remove("hidden");
-            document.getElementById("displayEmail").textContent = user.email;
-            document.getElementById("displayRole").textContent = uData.role.toUpperCase();
-            document.getElementById("displayRole").classList.add(uData.role==='admin'?'badge-approved':'badge-pending');
-
-            if(uData.role === 'admin') {
-                document.getElementById("adminSection").classList.remove("hidden");
-                document.getElementById("userSection").classList.add("hidden");
-                loadUsers();
-                listenToData(true);
-            } else {
-                document.getElementById("adminSection").classList.add("hidden");
-                document.getElementById("userSection").classList.remove("hidden");
-                if(uData.approved) {
-                    document.getElementById("pendingMsg").classList.add("hidden");
-                    listenToData(false);
-                } else {
-                    document.getElementById("userFolders").innerHTML = "";
-                    document.getElementById("pendingMsg").classList.remove("hidden");
-                }
-            }
-        } else {
-            authBox.classList.remove("hidden");
-            dashBox.classList.add("hidden");
-        }
-    });
-</script>
+        window.login = async () => {
+            const id = document.getElementById('login-uid').value.trim().toUpperCase();
+            const pass = document.getElementById('login-pass').value;
+            try {
+                const m = await getDoc(doc(db, "idMapping", id));
+                if(!m.exists()) throw new Error("Invalid User ID");
+                await signInWithEmailAndPassword(auth, m.data().email, pass);
+                window.location.href = 'dashboard.html';
+            } catch (e) { alert(e.message); }
+        };
+    </script>
 </body>
 </html>
