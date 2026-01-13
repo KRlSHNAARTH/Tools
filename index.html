@@ -38,7 +38,7 @@
                 <input type="password" id="pass" placeholder="Password">
                 <button class="btn-primary" onclick="handleAuth('login')">Login</button>
                 <button class="btn-secondary" onclick="handleAuth('register')">Register</button>
-                <p style="font-size: 12px; color: #666; text-align: center;">Note: admin account will automatically become Admin.</p>
+                <p style="font-size: 12px; color: #666; text-align: center;">Note: admin acc.ount will automatically become Admin.</p>
             </div>
         </div>
 
@@ -80,7 +80,7 @@
                     <h3>My Folders</h3>
                     <div id="userFolders"></div>
                     <div id="pendingMsg" class="hidden" style="text-align:center; color: #92400e;">
-                        Wait for account approved by Admin!
+                        Aapka account approval ke liye pending hai. Admin ka intezar karein.
                     </div>
                 </div>
             </div>
@@ -123,7 +123,7 @@
                     approved = true;
                 }
                 await setDoc(doc(db, "users", res.user.uid), { email, role, approved });
-                alert("Account has been created!");
+                alert("Account ban gaya!");
             } else {
                 await signInWithEmailAndPassword(auth, email, pass);
             }
@@ -162,7 +162,7 @@
     };
 
     window.deleteFolder = async (id) => {
-        if(confirm("Folder delete?")) await deleteDoc(doc(db, "folders", id));
+        if(confirm("Folder delete karein?")) await deleteDoc(doc(db, "folders", id));
     };
 
     window.addContent = async (folderId) => {
@@ -240,7 +240,7 @@
             dashBox.classList.remove("hidden");
             document.getElementById("displayEmail").textContent = user.email;
             document.getElementById("displayRole").textContent = uData.role.toUpperCase();
-            document.getElementByIdw("displayRole").classList.add(uData.role==='admin'?'badge-approved':'badge-pending');
+            document.getElementById("displayRole").classList.add(uData.role==='admin'?'badge-approved':'badge-pending');
 
             if(uData.role === 'admin') {
                 document.getElementById("adminSection").classList.remove("hidden");
