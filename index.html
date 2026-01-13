@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Krlshnaarth App</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; }
+        .container { width: 100%; max-width: 500px; }
+        .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 20px; box-sizing: border-box; }
+        h1, h2, h3 { color: #4f46e5; margin-top: 0; }
+        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
+        button { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.3s; margin-top: 5px; }
+        .btn-primary { background: #4f46e5; color: white; }
+        .btn-secondary { background: #6366f1; color: white; }
+        .btn-danger { background: #ef4444; color: white; width: auto; padding: 5px 10px; font-size: 12px; }
+        .btn-approve { background: #22c55e; color: white; width: auto; padding: 5px 10px; font-size: 12px; }
+        .btn-logout { background: #374151; color: white; width: auto; padding: 8px 15px; }
+        
+        .folder-item { background: #f9fafb; padding: 15px; border-radius: 10px; border-left: 5px solid #4f46e5; margin-bottom: 10px; position: relative; }
+        .content-item { background: white; padding: 8px; margin-top: 5px; border-radius: 5px; font-size: 14px; border: 1px solid #eee; }
+        .user-row { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; }
+        .badge { padding: 3px 8px; border-radius: 5px; font-size: 12px; }
+        .badge-pending { background: #fef3c7; color: #92400e; }
+        .badge-approved { background: #dcfce7; color: #166534; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- 1. Login/Register Screen -->
+        <div id="authBox">
+            <h1 style="text-align:center">📁 Krlshnaarth</h1>
+            <div class="card">
+                <h2>Login / Register</h2>
+                <input type="email" id="email" placeholder="Email">
+                <input type="password" id="pass" placeholder="Password">
+                <button class="btn-primary" onclick="handleAuth('login')">Login</button>
+                <button class="btn-secondary" onclick="handleAuth('register')">Register</button>
+                <p style="font-size: 12px; color: #666; text-align: center;">Note: admin account will automatically become Admin.</p>
+            </div>
+        </div>
+
+        <!-- 2. Dashboard Screen -->
+        <div id="dashBox" class="hidden">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px">
+                <div>
+                    <strong id="displayEmail"></strong><br>
+                    <span id="displayRole" class="badge"></span>
+                </div>
+                <button class="btn-logout" onclick="logout()">Logout</button>
+            </div>
+
+            <!-- Admin Section -->
+            <div id="adminSection" class="hidden">
+                <div class="card">
+                    <h3>Approve Users</h3>
+                    <div id="userList"></div>
+                </div>
+
+                <div class="card">
+                    <h3>Manage Folders</h3>
+                    <div style="display:flex; gap:5px">
+                        <input type="text" id="folderName" placeholder="Folder Name" style="margin:0">
+                        <button class="btn-primary" style="width:auto; margin:0" onclick="createFolder()">Add</button>
+                    </div>
+                    <div id="adminFolders" style="margin-top:15px"></div>
+                </div>
+
+                <div class="card">
+                    <h3>Admin Settings</h3>
+                    <button class="btn-secondary" onclick="changeAdminCreds()">Update Email/Password</button>
+                </div>
+            </div>
+
+            <!-- User Section -->
+            <div id="userSection" class="hidden">
+                <div class="card">
+                    <h3>My Folders</h3>
+                    <div id="userFolders"></div>
+                    <div id="pendingMsg" class="hidden" style="text-align:center; color: #92400e;">
+                        Wait for account approved by Admin!
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateEmail, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs, updateDoc, deleteDoc, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyD8fNuIYDLnDidazUu6ijw5rf4GgYxFuRc",
+        authDomain: "krishna-35e4b.firebaseapp.com",
+        projectId: "krishna-35e4b",
+        storageBucket: "krishna-35e4b.firebasestorage.app",
+        messagingSenderId: "143564034150",
+        appId: "1:143564034150:web:56860b341a63ee82fd5da7",
+        measurementId: "G-0SLWD1D1FP"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // --- AUTHENTICATION ---
+    window.handleAuth = async (mode) => {
+        const email = document.getElementById("email").value.trim();
+        const pass = document.getElementById("pass").value;
+        if(!email || !pass) return alert("Email aur Password bhariye");
+
+        try {
+            if(mode === 'register') {
+                const res = await createUserWithEmailAndPassword(auth, email, pass);
+                // AUTO-ADMIN LOGIC
+                let role = "user";
+                let approved = false;
+                if(email === "admin@krlshnaarth.com") {
+                    role = "admin";
+                    approved = true;
+                }
+                await setDoc(doc(db, "users", res.user.uid), { email, role, approved });
+                alert("Account has been created!");
+            } else {
+                await signInWithEmailAndPassword(auth, email, pass);
+            }
+        } catch(e) { alert("Error: " + e.message); }
+    };
+
+    window.logout = () => signOut(auth);
+
+    // --- ADMIN ACTIONS ---
+    async function loadUsers() {
+        const snap = await getDocs(collection(db, "users"));
+        const list = document.getElementById("userList");
+        list.innerHTML = "";
+        snap.forEach(uDoc => {
+            const u = uDoc.data();
+            if(u.role !== 'admin') {
+                list.innerHTML += `
+                <div class="user-row">
+                    <span>${u.email} <br> <small class="badge ${u.approved?'badge-approved':'badge-pending'}">${u.approved?'Approved':'Pending'}</small></span>
+                    <button class="btn-approve" onclick="approveUser('${uDoc.id}', ${u.approved})">${u.approved?'Disapprove':'Approve'}</button>
+                </div>`;
+            }
+        });
+    }
+
+    window.approveUser = async (uid, current) => {
+        await updateDoc(doc(db, "users", uid), { approved: !current });
+        loadUsers();
+    };
+
+    window.createFolder = async () => {
+        const name = document.getElementById("folderName").value;
+        if(!name) return;
+        await addDoc(collection(db, "folders"), { name });
+        document.getElementById("folderName").value = "";
+    };
+
+    window.deleteFolder = async (id) => {
+        if(confirm("Folder delete?")) await deleteDoc(doc(db, "folders", id));
+    };
+
+    window.addContent = async (folderId) => {
+        const text = prompt("Naya content likhein:");
+        if(text) await addDoc(collection(db, "content"), { folderId, text });
+    };
+
+    // --- REALTIME DATA ---
+    function listenToData(isAdmin) {
+        onSnapshot(collection(db, "folders"), (snap) => {
+            const adminDiv = document.getElementById("adminFolders");
+            const userDiv = document.getElementById("userFolders");
+            adminDiv.innerHTML = ""; userDiv.innerHTML = "";
+
+            snap.forEach(fDoc => {
+                const f = fDoc.data();
+                const folderId = fDoc.id;
+
+                // Admin UI
+                adminDiv.innerHTML += `
+                <div class="folder-item">
+                    <strong>📁 ${f.name}</strong>
+                    <div style="margin-top:10px">
+                        <button class="btn-approve" onclick="addContent('${folderId}')">+ Content</button>
+                        <button class="btn-danger" onclick="deleteFolder('${folderId}')">Delete</button>
+                    </div>
+                </div>`;
+
+                // User UI
+                userDiv.innerHTML += `
+                <div class="folder-item">
+                    <strong>📁 ${f.name}</strong>
+                    <div id="cont-${folderId}"></div>
+                </div>`;
+                loadFolderContent(folderId);
+            });
+        });
+    }
+
+    async function loadFolderContent(folderId) {
+        const q = query(collection(db, "content"), where("folderId", "==", folderId));
+        const snap = await getDocs(q);
+        const div = document.getElementById(`cont-${folderId}`);
+        if(div) {
+            div.innerHTML = "";
+            snap.forEach(cDoc => {
+                div.innerHTML += `<div class="content-item">${cDoc.data().text}</div>`;
+            });
+        }
+    }
+
+    window.changeAdminCreds = async () => {
+        const newEmail = prompt("Naya Email (Chhorne ke liye cancel karein):");
+        const newPass = prompt("Naya Password (Chhorne ke liye cancel karein):");
+        const oldPass = prompt("Current Password confirm karein:");
+        try {
+            const cred = EmailAuthProvider.credential(auth.currentUser.email, oldPass);
+            await reauthenticateWithCredential(auth.currentUser, cred);
+            if(newEmail) await updateEmail(auth.currentUser, newEmail);
+            if(newPass) await updatePassword(auth.currentUser, newPass);
+            alert("Success!");
+        } catch(e) { alert(e.message); }
+    };
+
+    // --- AUTH STATE ---
+    onAuthStateChanged(auth, async (user) => {
+        const authBox = document.getElementById("authBox");
+        const dashBox = document.getElementById("dashBox");
+        
+        if (user) {
+            const uSnap = await getDoc(doc(db, "users", user.uid));
+            const uData = uSnap.data();
+            
+            authBox.classList.add("hidden");
+            dashBox.classList.remove("hidden");
+            document.getElementById("displayEmail").textContent = user.email;
+            document.getElementById("displayRole").textContent = uData.role.toUpperCase();
+            document.getElementByIdw("displayRole").classList.add(uData.role==='admin'?'badge-approved':'badge-pending');
+
+            if(uData.role === 'admin') {
+                document.getElementById("adminSection").classList.remove("hidden");
+                document.getElementById("userSection").classList.add("hidden");
+                loadUsers();
+                listenToData(true);
+            } else {
+                document.getElementById("adminSection").classList.add("hidden");
+                document.getElementById("userSection").classList.remove("hidden");
+                if(uData.approved) {
+                    document.getElementById("pendingMsg").classList.add("hidden");
+                    listenToData(false);
+                } else {
+                    document.getElementById("userFolders").innerHTML = "";
+                    document.getElementById("pendingMsg").classList.remove("hidden");
+                }
+            }
+        } else {
+            authBox.classList.remove("hidden");
+            dashBox.classList.add("hidden");
+        }
+    });
+</script>
+</body>
+</html>
